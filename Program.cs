@@ -27,17 +27,20 @@ namespace dtlab
 
             AsyncPageable<BasicDigitalTwin> queryTask = dtClient.QueryAsync<BasicDigitalTwin>(queryString);
 
-            await foreach (var item in queryTask)
+
+            await foreach (var page in queryTask.AsPages(null, 10))
             {
-                string jsonString = JsonSerializer.Serialize(item, new JsonSerializerOptions
+                if (QueryChargeHelper.TryGetQueryCharge(page, out float queryCharge))
+                {
+                    Console.WriteLine($"Query charge was: {queryCharge}");
+                }
+                string jsonString = JsonSerializer.Serialize(page, new JsonSerializerOptions
                 {
                     WriteIndented = true
                 });
                 Console.ForegroundColor = ConsoleColor.Green;
                 System.Console.WriteLine(jsonString);
             }
-
-
         }
 
     }
